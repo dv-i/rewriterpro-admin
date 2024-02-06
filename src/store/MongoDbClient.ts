@@ -18,7 +18,7 @@ const getAxiosClient = async (): Promise<AxiosInstance> => {
 
 export const refreshMongoAccessToken = async (): Promise<void> => {
 	const mongoAuthDetails = await axios.post(DATABASE.AUTH_URL, {
-		key: process.env.REACT_APP_ATLAS_DATA_API_KEY,
+		key: "xxftT7sLbxrs7zVO9phG4xgPKd4HVCGpeW3atzbToEIwrM8Rw3KhbTeIE3R0rHN7",
 	});
 	if (mongoAuthDetails.data.access_token) {
 		setMongoAccessToken(mongoAuthDetails.data.access_token);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { QuestionAndResponse, User } from "./store/dataInterfaces";
+import { User } from "./store/dataInterfaces";
 import MongoDbClient from "./store/MongoDbClient";
 import {
 	QUESTIONS_AND_RESPONSES_COLLECTION,
@@ -67,7 +67,7 @@ function Users({ setShowLoginPage }: DashboardProps) {
 					},
 					{
 						$set: {
-							totalCost: totalCost,
+							totalCost,
 						},
 					}
 				);
@@ -89,7 +89,7 @@ function Users({ setShowLoginPage }: DashboardProps) {
 
 	useEffect(() => {
 		if (users) {
-			getTotalCostPerUser().then((res) => {
+			getTotalCostPerUser().then(() => {
 				//
 			});
 			getTotalLifetimeCostForAllUsers();

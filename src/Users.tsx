@@ -78,10 +78,10 @@ function Users({ setShowLoginPage }: DashboardProps) {
 	};
 
 	const getTotalLifetimeCostForAllUsers = (): void => {
-		const totalCostSum = 0;
+		let totalCostSum = 0;
 		for (const user of users) {
 			if (user.totalCost) {
-				totalCostSum + user.totalCost;
+				totalCostSum = totalCostSum + user.totalCost;
 			}
 		}
 		setTotalCostForAllUsers(totalCostSum);

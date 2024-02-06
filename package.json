@@ -15,6 +15,7 @@
 		"@types/node": "^16.18.40",
 		"@types/react": "^18.2.19",
 		"@types/react-dom": "^18.2.7",
+		"axios": "^1.6.7",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"react-scripts": "5.0.1",
@@ -22,11 +23,14 @@
 		"web-vitals": "^2.1.4"
 	},
 	"scripts": {
-		"start": "react-scripts start",
+		"start": "HTPPS=true && react-scripts start",
+		"predeploy": "npm run build",
+		"deploy": "gh-pages -d build",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
-		"prepare": "husky install"
+		"lint": "tsc --noEmit && eslint src/**/*.ts{,x} --cache --max-warnings=0",
+		"lint:fix": "eslint src/**/*.ts{,x} --fix"
 	},
 	"eslintConfig": {
 		"extends": [
@@ -55,7 +59,6 @@
 		"eslint-plugin-n": "^16.0.1",
 		"eslint-plugin-promise": "^6.1.1",
 		"eslint-plugin-react": "^7.33.1",
-		"husky": "^8.0.0",
 		"prettier": "3.0.1",
 		"typescript": "^5.1.6"
 	},

@@ -60,7 +60,7 @@ function Users({ setShowLoginPage }: DashboardProps) {
 					totalCharsInResponses * PER_TOKEN_PRICE_OUTPUT;
 				const totalCost = totalInputCost + totalOutputCost;
 				userCostMap[user.email] = totalCost;
-				const res = await mongo.updateOne(
+				await mongo.updateOne(
 					USERS_COLLECTION,
 					{
 						email: user.email,

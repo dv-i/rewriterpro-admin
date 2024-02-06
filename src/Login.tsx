@@ -26,11 +26,19 @@ export const Login = ({
 	): Promise<void> => {
 		e.preventDefault();
 		if (email && password) {
-			const authedUser = await login(email, password);
-			if (authedUser) {
-				setAuthenticatedUser(authedUser);
-				setUser(authedUser);
-			} else {
+			try {
+				const authedUser = await login(email, password);
+				if (authedUser) {
+					setAuthenticatedUser(authedUser);
+					setUser(authedUser);
+				} else {
+					setToast({
+						visible: true,
+						title: "Could not login. Check credentials",
+						type: "error",
+					});
+				}
+			} catch (e) {
 				setToast({
 					visible: true,
 					title: "Could not login. Check credentials",

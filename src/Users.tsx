@@ -167,7 +167,7 @@ function Users({ setShowLoginPage }: DashboardProps) {
 					userIntervalMap[user.email] =
 						subscriptions[0].items.data[0].price.recurring
 							?.interval;
-					console.log(user.email, subscriptions[0].created);
+					// console.log(user.email, subscriptions[0].created);
 					const response = await mongo.updateOne(
 						USERS_COLLECTION,
 						{
@@ -181,7 +181,6 @@ function Users({ setShowLoginPage }: DashboardProps) {
 							},
 						}
 					);
-					console.log(response);
 				}
 			}
 		}

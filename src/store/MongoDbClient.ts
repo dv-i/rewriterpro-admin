@@ -49,10 +49,10 @@ class MongoDbClient {
 			return response.data.document;
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
-			console.error(
-				`Failed to findOne from ${DATABASE.NAME} - ${collection}`,
-				error
-			);
+			// console.error(
+			// 	`Failed to findOne from ${DATABASE.NAME} - ${collection}`,
+			// 	error
+			// );
 			await this.handleMongoAccessTokenRefresh(error);
 
 			throw error;
@@ -72,10 +72,10 @@ class MongoDbClient {
 			const response = await axiosClient.post("/action/find", body);
 			return response.data.documents;
 		} catch (error) {
-			console.error(
-				`Failed to findOne from ${DATABASE.NAME} - ${collection}`,
-				error
-			);
+			// console.error(
+			// 	`Failed to findOne from ${DATABASE.NAME} - ${collection}`,
+			// 	error
+			// );
 			await this.handleMongoAccessTokenRefresh(error);
 			throw error;
 		}
@@ -102,7 +102,7 @@ class MongoDbClient {
 			const response = await axiosClient.post("/action/insertOne", body);
 			return response.data;
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			await this.handleMongoAccessTokenRefresh(error);
 		}
 		return null;
@@ -123,7 +123,7 @@ class MongoDbClient {
 			const response = await axiosClient.post("/action/insertOne", body);
 			return response.data;
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			await this.handleMongoAccessTokenRefresh(error);
 		}
 		return null;
@@ -148,10 +148,10 @@ class MongoDbClient {
 			const response = await axiosClient.post("/action/updateOne", body);
 			return response.data;
 		} catch (error) {
-			console.error(
-				`Failed to updateOne in ${DATABASE.NAME} - ${collection}`,
-				error
-			);
+			// console.error(
+			// 	`Failed to updateOne in ${DATABASE.NAME} - ${collection}`,
+			// 	error
+			// );
 			await this.handleMongoAccessTokenRefresh(error);
 		}
 		return null;

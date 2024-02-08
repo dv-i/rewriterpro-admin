@@ -4,9 +4,12 @@ class StripeUtil {
 	private readonly stripe: Stripe;
 
 	constructor(apiKey: string) {
-		this.stripe = new Stripe(apiKey, {
-			apiVersion: "2023-10-16",
-		});
+		this.stripe = new Stripe(
+			"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",
+			{
+				apiVersion: "2023-10-16",
+			}
+		);
 	}
 
 	async getCustomerSubscriptionsByEmail(
@@ -28,10 +31,10 @@ class StripeUtil {
 			// console.log(customer);
 			return customer.subscriptions?.data || [];
 		} catch (error) {
-			console.error(
-				`Error fetching customer subscriptions for email - ${email}`,
-				error
-			);
+			// console.error(
+			// 	`Error fetching customer subscriptions for email - ${email}`,
+			// 	error
+			// );
 			throw error;
 		}
 	}
@@ -48,10 +51,10 @@ class StripeUtil {
 			);
 			return subscription;
 		} catch (error) {
-			console.error(
-				`Error canceling subscription - ${subscriptionId}`,
-				error
-			);
+			// console.error(
+			// 	`Error canceling subscription - ${subscriptionId}`,
+			// 	error
+			// );
 			throw error;
 		}
 	}

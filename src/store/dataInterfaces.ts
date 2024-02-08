@@ -6,8 +6,11 @@ export interface User {
 	authType?: string;
 	passwordResetCode?: string;
 	subscriptionPeriodEndDateEpochSeconds?: number;
+	subscriptionPeriodStartDateEpochSeconds?: number;
 	_id?: string;
 	totalCost?: number;
+	totalQueries?: number;
+	interval?: string;
 	admin?: boolean;
 }
 

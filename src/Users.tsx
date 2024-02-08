@@ -7,10 +7,14 @@ import {
 } from "./store/constants";
 import { PER_TOKEN_PRICE_INPUT, PER_TOKEN_PRICE_OUTPUT } from "./constants";
 import { DashboardProps } from "./Dashboard";
+import StripeUtil from "./utils/StripeUtil";
 
 function Users({ setShowLoginPage }: DashboardProps) {
 	const [users, setUsers] = useState<User[]>([]);
 	const [usersWithCosts, setUsersWithCosts] = useState<any>();
+	const [usersWithQueries, setUsersWithQueries] = useState<any>();
+	// const [usersWithStartDates, setUsersWithStartDates] = useState<any>();
+	const [usersWithIntervals, setUsersWithIntervals] = useState<any>();
 	const [totalCostForAllUsers, setTotalCostForAllUsers] = useState<number>(0);
 	const mongo = new MongoDbClient();
 
@@ -19,7 +23,7 @@ function Users({ setShowLoginPage }: DashboardProps) {
 			setUsers(
 				res.filter(
 					(user) =>
-						user.subscriptionPeriodEndDateEpochSeconds || user.pro
+						user.subscriptionPeriodEndDateEpochSeconds && user.pro
 				)
 			);
 		});
@@ -77,6 +81,41 @@ function Users({ setShowLoginPage }: DashboardProps) {
 		setUsersWithCosts(userCostMap);
 	};
 
+	const getTotalQueriesPerUser = async (): Promise<void> => {
+		//	This function was a one time thing. It should not be needed once every user has a totalQueries field
+		const userQueryMap = {};
+		for (const user of users) {
+			if (user.totalQueries === undefined) {
+				const questionsAndResponses = await mongo.find(
+					QUESTIONS_AND_RESPONSES_COLLECTION,
+					{
+						userId: user._id,
+					}
+				);
+				const questions = questionsAndResponses.map(
+					(res) => res.question
+				);
+				console.log(
+					`Questions for ${user.email} are ${questionsAndResponses.length}`
+				);
+				userQueryMap[user.email] = questions.length;
+				await mongo.updateOne(
+					USERS_COLLECTION,
+					{
+						email: user.email,
+					},
+					{
+						$set: {
+							totalQueries: questions.length,
+						},
+					}
+				);
+			}
+		}
+
+		setUsersWithQueries(userQueryMap);
+	};
+
 	const getTotalLifetimeCostForAllUsers = (): void => {
 		let totalCostSum = 0;
 		for (const user of users) {
@@ -87,14 +126,91 @@ function Users({ setShowLoginPage }: DashboardProps) {
 		setTotalCostForAllUsers(totalCostSum);
 	};
 
+	const getSubscriptionStartedDatePerUser = async () => {
+		const stripe = new StripeUtil(
+			process.env.REACT_APP_STRIPE_SECRET_KEY_PROD || ""
+		);
+		// console.log(users);
+		// const userPeriodStartDateMap = {};
+		const userIntervalMap = {};
+		for (const user of users) {
+			// console.log(user.email);
+			const subscriptions = await stripe.getCustomerSubscriptionsByEmail(
+				user.email
+			);
+			// if (subscriptions.length > 0) {
+			// 	if (
+			// 		user.subscriptionPeriodStartDateEpochSeconds === undefined
+			// 	) {
+			// 		userPeriodStartDateMap[user.email] =
+			// 			subscriptions[0].created;
+			// 		console.log(user.email, subscriptions[0].created);
+			// 		const response = await mongo.updateOne(
+			// 			USERS_COLLECTION,
+			// 			{
+			// 				email: user.email,
+			// 			},
+			// 			{
+			// 				$set: {
+			// 					subscriptionPeriodStartDateEpochSeconds:
+			// 						subscriptions[0].created,
+			// 				},
+			// 			}
+			// 		);
+			// 		console.log(response);
+			// 	}
+			// }
+			if (subscriptions.length > 0) {
+				if (user.interval === undefined) {
+					// userPeriodStartDateMap[user.email] =
+					// 	subscriptions[0].items.data[0].price.recurring?.interval;
+					userIntervalMap[user.email] =
+						subscriptions[0].items.data[0].price.recurring
+							?.interval;
+					console.log(user.email, subscriptions[0].created);
+					const response = await mongo.updateOne(
+						USERS_COLLECTION,
+						{
+							email: user.email,
+						},
+						{
+							$set: {
+								interval:
+									subscriptions[0].items.data[0].price
+										.recurring?.interval,
+							},
+						}
+					);
+					console.log(response);
+				}
+			}
+		}
+		// setUsersWithStartDates(userPeriodStartDateMap);
+		setUsersWithIntervals(userIntervalMap);
+	};
+
 	useEffect(() => {
 		if (users) {
 			getTotalCostPerUser().then(() => {
 				//
 			});
+			getTotalQueriesPerUser().then(() => {});
+			getSubscriptionStartedDatePerUser().then(() => {});
 			getTotalLifetimeCostForAllUsers();
 		}
 	}, [users]);
+
+	function epochSecondsToReadableDate(epochSeconds: number): string {
+		const date = new Date(epochSeconds * 1000); // Convert seconds to milliseconds
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+		const day = String(date.getDate()).padStart(2, "0");
+		const hours = String(date.getHours()).padStart(2, "0");
+		const minutes = String(date.getMinutes()).padStart(2, "0");
+		const seconds = String(date.getSeconds()).padStart(2, "0");
+
+		return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+	}
 
 	return (
 		<div className="py-6 grow-[6] px-6 sm:px-6 lg:px-8">
@@ -160,6 +276,30 @@ function Users({ setShowLoginPage }: DashboardProps) {
 									>
 										Cost ($)
 									</th>
+									<th
+										scope="col"
+										className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>
+										Queries
+									</th>
+									<th
+										scope="col"
+										className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>
+										Subscription Type
+									</th>
+									<th
+										scope="col"
+										className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>
+										Subscription Start Date
+									</th>
+									<th
+										scope="col"
+										className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>
+										Subscription End Date
+									</th>
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-gray-200">
@@ -177,6 +317,38 @@ function Users({ setShowLoginPage }: DashboardProps) {
 													.length > 0 &&
 												usersWithCosts[person.email]) ||
 												person.totalCost?.toFixed(4)}
+										</td>
+										<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+											{(usersWithQueries &&
+												Object.keys(usersWithQueries)
+													.length > 0 &&
+												usersWithQueries[
+													person.email
+												]) ||
+												person.totalQueries}
+										</td>
+										<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+											{(usersWithIntervals &&
+												Object.keys(usersWithIntervals)
+													.length > 0 &&
+												usersWithIntervals[
+													person.email
+												]) ||
+												person.interval}
+										</td>
+										<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+											{person.subscriptionPeriodStartDateEpochSeconds &&
+												epochSecondsToReadableDate(
+													person.subscriptionPeriodStartDateEpochSeconds
+												)}
+										</td>
+										<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+											{!person.subscriptionPeriodStartDateEpochSeconds
+												? "Cancelled"
+												: person.subscriptionPeriodEndDateEpochSeconds &&
+												  epochSecondsToReadableDate(
+														person.subscriptionPeriodEndDateEpochSeconds
+												  )}
 										</td>
 									</tr>
 								))}

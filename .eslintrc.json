@@ -37,7 +37,9 @@
 		"@typescript-eslint/prefer-nullish-coalescing": "off",
 		"@typescript-eslint/no-confusing-void-expression": "off",
 		"@typescript-eslint/explicit-function-return-type": "off",
-		"@typescript-eslint/no-misused-promises": "off"
+		"@typescript-eslint/no-misused-promises": "off",
+		"@typescript-eslint/lines-between-class-members": "off",
+		"no-useless-catch": "off"
 	},
 	"ignorePatterns": ["tailwind.config.js", "**/vendor/*.js"]
 }

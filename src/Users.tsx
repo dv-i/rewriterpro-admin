@@ -168,7 +168,7 @@ function Users({ setShowLoginPage }: DashboardProps) {
 						subscriptions[0].items.data[0].price.recurring
 							?.interval;
 					// console.log(user.email, subscriptions[0].created);
-					const response = await mongo.updateOne(
+					await mongo.updateOne(
 						USERS_COLLECTION,
 						{
 							email: user.email,

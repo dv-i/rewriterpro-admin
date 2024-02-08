@@ -4,12 +4,9 @@ class StripeUtil {
 	private readonly stripe: Stripe;
 
 	constructor(apiKey: string) {
-		this.stripe = new Stripe(
-			"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",
-			{
-				apiVersion: "2023-10-16",
-			}
-		);
+		this.stripe = new Stripe(apiKey, {
+			apiVersion: "2023-10-16",
+		});
 	}
 
 	async getCustomerSubscriptionsByEmail(
